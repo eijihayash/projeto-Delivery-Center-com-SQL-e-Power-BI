@@ -1,0 +1,30 @@
+USE DeliveryCenter;
+GO
+
+-- Análise exploratório drivers
+SELECT TOP 10 * FROM dbo.payments;
+
+-- IDs duplicados
+SELECT 
+	payment_id
+	,COUNT(*)
+FROM dbo.payments
+GROUP BY payment_id
+HAVING COUNT(*) > 1; -- sem duplicados
+
+-- Valores negativos
+SELECT
+	MIN(payment_amount)
+	,MIN(payment_fee)
+FROM dbo.payments; --ok
+
+-- Valores das variáveis
+SELECT 
+	DISTINCT payment_method
+FROM dbo.payments
+ORDER BY payment_method;-- ok
+
+SELECT 
+	DISTINCT payment_status
+FROM dbo.payments
+ORDER BY payment_status;-- ok
