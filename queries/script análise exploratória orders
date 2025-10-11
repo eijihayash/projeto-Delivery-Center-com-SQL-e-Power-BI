@@ -1,0 +1,164 @@
+USE DeliveryCenter;
+GO
+
+-- Análise exploratório drivers
+SELECT TOP 10 * FROM dbo.orders;
+
+SELECT COUNT(*) FROM dbo.orders;
+
+-- Valores nuloes
+SELECT
+	SUM(CASE WHEN order_id IS NULL THEN 1 ELSE 0 END) AS order_id,
+	SUM(CASE WHEN store_id IS NULL THEN 1 ELSE 0 END) AS store_id,
+	SUM(CASE WHEN channel_id IS NULL THEN 1 ELSE 0 END) AS channel_id,
+	SUM(CASE WHEN payment_order_id IS NULL THEN 1 ELSE 0 END) AS payment_order_id,
+	SUM(CASE WHEN delivery_order_id IS NULL THEN 1 ELSE 0 END) AS delivery_order_id,
+	SUM(CASE WHEN order_status IS NULL THEN 1 ELSE 0 END) AS order_status,
+	SUM(CASE WHEN order_amount IS NULL THEN 1 ELSE 0 END) AS order_amount,
+	SUM(CASE WHEN order_delivery_fee IS NULL THEN 1 ELSE 0 END) AS order_delivery_fee,
+	SUM(CASE WHEN order_delivery_cost IS NULL THEN 1 ELSE 0 END) AS order_delivery_cost,
+	SUM(CASE WHEN order_created_hour IS NULL THEN 1 ELSE 0 END) AS order_created_hour,
+	SUM(CASE WHEN order_created_minute IS NULL THEN 1 ELSE 0 END) AS order_created_minute,
+	SUM(CASE WHEN order_created_day IS NULL THEN 1 ELSE 0 END) AS order_created_day,
+	SUM(CASE WHEN order_created_month IS NULL THEN 1 ELSE 0 END) AS order_created_month,
+	SUM(CASE WHEN order_created_year IS NULL THEN 1 ELSE 0 END) AS order_created_year,
+	SUM(CASE WHEN order_moment_created IS NULL THEN 1 ELSE 0 END) AS order_moment_created,
+	SUM(CASE WHEN order_moment_accepted IS NULL THEN 1 ELSE 0 END) AS order_moment_accepted,
+	SUM(CASE WHEN order_moment_ready IS NULL THEN 1 ELSE 0 END) AS order_moment_ready,
+	SUM(CASE WHEN order_moment_collected IS NULL THEN 1 ELSE 0 END) AS order_moment_collected,
+	SUM(CASE WHEN order_moment_in_expedition IS NULL THEN 1 ELSE 0 END) AS order_moment_in_expedition,
+	SUM(CASE WHEN order_moment_delivering IS NULL THEN 1 ELSE 0 END) AS order_moment_delivering,
+	SUM(CASE WHEN order_moment_delivered IS NULL THEN 1 ELSE 0 END) AS order_moment_delivered,
+	SUM(CASE WHEN order_moment_finished IS NULL THEN 1 ELSE 0 END) AS order_moment_finished,
+	SUM(CASE WHEN order_metric_collected_time IS NULL THEN 1 ELSE 0 END) AS order_metric_collected_time,
+	SUM(CASE WHEN order_metric_paused_time IS NULL THEN 1 ELSE 0 END) AS order_metric_paused_time,
+	SUM(CASE WHEN order_metric_production_time IS NULL THEN 1 ELSE 0 END) AS order_metric_production_time,
+	SUM(CASE WHEN order_metric_walking_time IS NULL THEN 1 ELSE 0 END) AS order_metric_walking_time,
+	SUM(CASE WHEN order_metric_expediton_speed_time IS NULL THEN 1 ELSE 0 END) AS order_metric_expedition_speed_time,
+	SUM(CASE WHEN order_metric_transit_time IS NULL THEN 1 ELSE 0 END) AS order_metric_transit_time,
+	SUM(CASE WHEN order_metric_cycle_time IS NULL THEN 1 ELSE 0 END) AS order_metric_cycle_time
+FROM dbo.orders;
+-- 0	0	0	0	0	0	0	0	7205	0	0	0	0	0	0	9461	25106	42894	67429	25316	349398	15599	51522	71581	25107	74061	34586	26063	21505
+
+-- IDs duplicados
+SELECT 
+	order_id
+	,COUNT(*)
+FROM dbo.orders
+GROUP BY order_id
+HAVING COUNT(*) > 1; -- sem duplicados
+
+-- Identificando se há IDs estrangeiros negativos
+SELECT 
+	MIN(store_id)
+	,MIN(channel_id)
+	,MIN(payment_order_id)
+	,MIN(delivery_order_id)
+FROM dbo.orders; --Ok, nenhum valores negativos
+
+-- Valores negativos
+SELECT 
+	MIN(order_amount)
+FROM dbo.orders; --Ok, nenhum valores negativos
+
+-- Verificando relacionamento entre tabela stories e hubs
+SELECT 
+	COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.stores AS st
+	ON ord.store_id = st.store_id
+WHERE st.store_id IS NULL; --ok
+
+SELECT 
+	COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.channels AS ch
+	ON ord.channel_id = ch.channel_id
+WHERE ch.channel_id IS NULL; --ok
+
+SELECT 
+	COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.payments AS pa
+	ON ord.payment_order_id = pa.payment_order_id 
+WHERE pa.payment_order_id  IS NULL; -- 18665 nulls
+
+SELECT
+	ord.order_status
+	,COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.payments AS pa
+	ON ord.payment_order_id = pa.payment_order_id
+WHERE pa.payment_order_id  IS NULL
+GROUP BY ord.order_status; -- CANCELLED - 16971, FINISHED 1694
+
+SELECT
+	ord.order_status
+	,de.delivery_status
+	,COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.payments AS pa
+	ON ord.payment_order_id = pa.payment_order_id
+LEFT JOIN dbo.deliveries AS de
+	ON ord.delivery_order_id = de.delivery_order_id
+WHERE pa.payment_order_id  IS NULL AND ord.order_status = 'FINISHED'
+GROUP BY ord.order_status,de.delivery_status; -- este quey mostou mais resultados de finished, por isso terei que utilizar o método de CTE para análise.
+
+-- Relaicionamento entre order e delivery CTE
+WITH order_delivery AS (
+	SELECT 
+		ord.payment_order_id
+		,ord.order_status
+		,ord.delivery_order_id
+		,ord.order_amount
+		,MAX(de.delivery_status) AS delivery_status -- status mais recente
+	FROM dbo.orders AS ord
+	LEFT JOIN dbo.deliveries AS de
+	ON ord.delivery_order_id = de.delivery_order_id
+	WHERE ord.order_status = 'FINISHED'
+	GROUP BY 
+		ord.payment_order_id,
+		ord.order_status,
+		ord.delivery_order_id,
+		ord.order_amount
+)
+SELECT 
+	od.order_status
+	,od.delivery_status
+	,SUM(CASE WHEN od.order_amount = 0 THEN 1 ELSE 0 END) AS valor_zero
+    ,SUM(CASE WHEN od.order_amount > 0 THEN 1 ELSE 0 END) AS valor_maior_que_zero
+	,COUNT(*) AS total
+FROM order_delivery AS od
+LEFT JOIN dbo.payments AS pa
+	ON od.payment_order_id = pa.payment_order_id
+WHERE pa.payment_order_id  IS NULL
+GROUP BY od.order_status,od.delivery_status; -- 1680 delivered, 11 NULL, 2 delivering, 1 cancelled
+
+-- Por fim podemos concluir que 16971 foram cencelados e o restante 1694 pagamento está pendente por isso que retorna NULL ao fazer left join na tabela payments. Pois não há nulos na chave estrangeira payment_order_id na tabela orders
+
+SELECT 
+	COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.deliveries AS de
+	ON ord.delivery_order_id = de.delivery_order_id
+WHERE de.delivery_order_id IS NULL; -- 10345 Nulls
+
+SELECT 
+	ord.order_status
+	,COUNT(*)
+FROM dbo.orders AS ord
+LEFT JOIN dbo.deliveries AS de
+	ON ord.delivery_order_id = de.delivery_order_id
+WHERE de.delivery_order_id IS NULL
+GROUP BY ord.order_status; --  2677 FINISHED e 7668 CANCELED
+
+SELECT 
+	ord.order_status
+	,COUNT(*) AS total
+	,SUM(CASE WHEN ord.order_amount = 0 THEN 1 ELSE 0 END) AS valor_zero
+    ,SUM(CASE WHEN ord.order_amount > 0 THEN 1 ELSE 0 END) AS valor_maior_que_zero
+FROM dbo.orders AS ord
+LEFT JOIN dbo.deliveries AS de
+	ON ord.delivery_order_id = de.delivery_order_id
+WHERE de.delivery_order_id IS NULL AND ord.order_status = 'FINISHED'
+GROUP BY ord.order_status --2676 maior que zero e 1 igual a zero
