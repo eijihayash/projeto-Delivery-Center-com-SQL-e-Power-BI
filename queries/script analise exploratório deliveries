@@ -1,0 +1,79 @@
+USE DeliveryCenter;
+GO
+
+-- Análise exploratório deliveries
+SELECT TOP 10 * FROM dbo.deliveries;
+
+-- IDs duplicados
+SELECT 
+	delivery_id
+	,COUNT(*) AS quantidades
+FROM dbo.deliveries
+GROUP BY delivery_id
+HAVING COUNT(*) > 1; --ok
+
+-- Verificando se há IDs negativos
+SELECT
+	delivery_id
+	,delivery_order_id
+	,driver_id
+FROM dbo.deliveries
+WHERE delivery_id < 0 OR
+	delivery_order_id < 0 OR
+	driver_id < 0; --ok
+
+-- Entendendo valores de caolunas numéricos
+SELECT
+	MAX(delivery_distance_meters) AS maximo
+	,MIN(delivery_distance_meters) AS minimo
+	,AVG(CAST(delivery_distance_meters AS BIGINT)) AS AvgDistance
+FROM dbo.deliveries;
+
+-- Valores da coluna descritiva
+SELECT
+	DISTINCT delivery_status
+FROM dbo.deliveries;    --ok valores padrão
+
+-- Verificando relacionamento entre tabela deliveries e drivers
+SELECT 
+	COUNT(*)
+FROM dbo.deliveries AS de
+LEFT JOIN dbo.drivers AS dr
+	ON de.driver_id = dr.driver_id
+WHERE dr.driver_id IS NULL; --15886 nulos ou chave não existente na tabela drivers
+
+-- Entendendo se há relação com cancelamento
+SELECT 
+	de.delivery_status
+	,COUNT(*)
+FROM dbo.deliveries AS de
+LEFT JOIN dbo.drivers AS dr
+	ON de.driver_id = dr.driver_id
+WHERE dr.driver_id IS NULL
+GROUP BY de.delivery_status; -- não, pois obtemos cancelled 7253, delivered 8601, delivering 32
+
+-- Quais são essas chaves não identificados?
+SELECT DISTINCT de.driver_id
+FROM dbo.deliveries AS de
+LEFT JOIN dbo.drivers AS dr
+    ON de.driver_id = dr.driver_id
+WHERE dr.driver_id IS NULL
+ORDER BY de.driver_id; -- todos são nulos
+
+-- Verificando a quantidade de nulos temos na coluna da chave estrangeira
+SELECT COUNT(*) AS entregas_sem_driver_id
+FROM dbo.deliveries
+WHERE driver_id IS NULL; -- 15886, ou seja não há chave incorreta e sim, estão somente nulos
+
+-- Tratando este problema 
+SELECT 
+    delivery_id,
+    delivery_order_id,
+    driver_id,
+    delivery_distance_meters,
+    delivery_status,
+    CASE
+        WHEN driver_id IS NULL THEN 'motorista não registrado'
+        ELSE 'motorista registrado'
+    END AS motorista_status
+FROM dbo.deliveries; -- assim no BI é possível entende quais foram com nosso motoristas e quais não
