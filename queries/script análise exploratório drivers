@@ -1,0 +1,22 @@
+USE DeliveryCenter;
+GO
+
+-- Análise exploratório drivers
+SELECT TOP 10 * FROM dbo.drivers;
+GO
+-- IDs duplicados
+SELECT 
+	driver_id
+	,COUNT(*)
+FROM dbo.drivers
+GROUP BY driver_id
+HAVING COUNT(*) > 1; -- sem duplicados
+
+-- Valores das variáveis
+SELECT 
+	DISTINCT driver_modal
+FROM dbo.drivers; -- ok
+
+SELECT 
+	DISTINCT driver_type
+FROM dbo.drivers; -- ok
