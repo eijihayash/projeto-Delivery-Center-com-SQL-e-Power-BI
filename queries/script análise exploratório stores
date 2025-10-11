@@ -1,0 +1,48 @@
+USE DeliveryCenter;
+GO
+-- Análise exploratória
+-- Primeiras linhas
+
+SELECT TOP 10 * FROM dbo.stores;
+
+-- Quantidades de valores nulos
+SELECT
+	SUM(CASE WHEN store_id IS NULL THEN 1 ELSE 0 END) AS store_id,
+	SUM(CASE WHEN hub_id IS NULL THEN 1 ELSE 0 END) AS hub_id,
+	SUM(CASE WHEN store_name IS NULL THEN 1 ELSE 0 END) AS store_name,
+	SUM(CASE WHEN store_segment IS NULL THEN 1 ELSE 0 END) AS store_segment,
+	SUM(CASE WHEN store_plan_price IS NULL THEN 1 ELSE 0 END) AS store_plan_price,
+	SUM(CASE WHEN store_latitude IS NULL THEN 1 ELSE 0 END) AS store_latitude,
+	SUM(CASE WHEN store_longitude IS NULL THEN 1 ELSE 0 END) AS store_longitude
+FROM dbo.stores; -- valores nulos no campo store_plan_price; 115, store_latitude;16, store_longitude;16
+
+-- IDs duplicados
+SELECT 
+	store_id 
+	,COUNT(*)
+FROM dbo.stores
+GROUP BY store_id 
+HAVING COUNT(*) > 1;
+
+-- valores descritivos, existem variações?
+SELECT DISTINCT
+	store_segment
+FROM dbo.stores; -- ok, sem erro
+
+-- exsite valor negativo?
+SELECT DISTINCT
+	MIN(store_plan_price)
+FROM dbo.stores;
+
+-- há valores negativo na cahve estrangeira?
+SELECT
+	MIN(hub_id)
+FROM dbo.stores;
+
+-- Verificando relacionamento entre tabela stories e hubs
+SELECT 
+	COUNT(*)
+FROM dbo.stores AS st
+LEFT JOIN dbo.hubs AS hu
+	ON st.hub_id = hu.hub_id
+WHERE hu.hub_id IS NULL; --ok
