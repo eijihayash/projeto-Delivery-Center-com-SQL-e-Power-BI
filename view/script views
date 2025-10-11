@@ -1,0 +1,82 @@
+-- CRIAÇÃO DE VIEWS
+
+-- VW ORDERS
+CREATE VIEW vw_orders AS 
+SELECT
+    order_id
+    ,store_id
+    ,channel_id
+    ,payment_order_id
+    ,delivery_order_id
+    ,order_status
+    ,order_amount
+    ,order_delivery_fee
+    ,order_delivery_cost
+    ,order_moment_created
+FROM dbo.orders;
+
+SELECT * FROM vw_orders;
+
+-- VW CHANNELS
+CREATE VIEW vw_channels AS 
+SELECT
+    channel_id
+    ,channel_name
+    ,channel_type
+FROM dbo.channels;
+
+--VW DELIVERIES
+CREATE VIEW vw_deliveries AS
+SELECT 
+    delivery_id,
+    delivery_order_id,
+    driver_id,
+    delivery_distance_meters,
+    delivery_status,
+    CASE
+        WHEN driver_id IS NULL THEN 'motorista não registrado'
+        ELSE 'motorista registrado'
+    END AS motorista_status
+FROM dbo.deliveries;
+
+-- VW DRIVERS
+CREATE VIEW vw_drivers AS 
+SELECT
+    driver_id
+    ,driver_modal
+    ,driver_type
+FROM dbo.drivers;
+
+-- VW HUBS
+CREATE VIEW vw_hubs AS 
+SELECT
+    hub_id
+    ,hub_name
+    ,hub_city
+    ,hub_state
+    ,hub_latitude
+    ,hub_longitude
+FROM dbo.hubs;
+
+-- VW PAYMENTS
+CREATE VIEW vw_payments AS 
+SELECT
+    payment_id
+    ,payment_order_id
+    ,payment_amount
+    ,payment_fee
+    ,payment_method
+    ,payment_status
+FROM dbo.payments;
+
+-- VW STORES
+CREATE VIEW vw_stores AS 
+SELECT
+    store_id
+    ,hub_id
+    ,store_name
+    ,store_segment
+    ,store_plan_price
+    ,store_latitude
+    ,store_longitude
+FROM dbo.stores;
