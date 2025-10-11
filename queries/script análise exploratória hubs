@@ -1,0 +1,27 @@
+USE DeliveryCenter;
+GO
+
+-- Análise exploratório drivers
+SELECT TOP 10 * FROM dbo.hubs;
+
+-- IDs duplicados
+SELECT 
+	hub_id
+	,COUNT(*)
+FROM dbo.hubs
+GROUP BY hub_id
+HAVING COUNT(*) > 1; -- sem duplicados
+
+-- Valores das variáveis
+SELECT 
+	DISTINCT hub_name
+FROM dbo.hubs
+ORDER BY hub_name;-- ok
+
+SELECT 
+	DISTINCT hub_city
+FROM dbo.hubs; -- ok
+
+SELECT 
+	DISTINCT hub_state
+FROM dbo.hubs; -- ok
