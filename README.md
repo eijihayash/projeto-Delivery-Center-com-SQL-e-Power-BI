@@ -14,9 +14,13 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 
 ## Estrutura do Projeto
 /projeto-delivery-center
+
 │
+
 ├─ views/            # Views criadas no SQL Server para cada tabela relevante
+
 ├─ queries/          # Consultas SQL utilizadas na análise exploratória
+
 └─ README.md         # Documentação do projeto
 
 ---
