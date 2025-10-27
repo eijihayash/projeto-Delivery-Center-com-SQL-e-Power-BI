@@ -37,6 +37,8 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 ---
 ## Objetivo dos Dashboards
 
+- **Em andamento**
+
 ## Dashboards Criados
 
 ### Página 1 – Visão Geral de Receita
@@ -45,6 +47,4 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 ### Página 2 – Taxa de Cancelamento
 ![Dashboard Cancelamento](https://github.com/eijihayash/projeto-Delivery-Center-com-SQL-e-Power-BI/blob/main/imagens/canceled.PNG)
 
-
-- **Em andamento**
 
