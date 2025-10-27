@@ -40,10 +40,10 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 ## Dashboards Criados
 
 ### Página 1 – Visão Geral de Receita
-![Dashboard Receita](images/dashboard1.png)
+![Dashboard Receita](images/Receita.PNG)
 
 ### Página 2 – Taxa de Cancelamento
-![Dashboard Cancelamento](images/dashboard2.png)
+![Dashboard Cancelamento](images/cancelado.PNG)
 
 
 - **Em andamento**
