@@ -40,10 +40,10 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 ## Dashboards Criados
 
 ### Página 1 – Visão Geral de Receita
-![Dashboard Receita](images/Receita.PNG)
+![images/Receita.PNG](https://github.com/eijihayash/projeto-Delivery-Center-com-SQL-e-Power-BI/blob/main/imagens/Revenue.PNG)
 
 ### Página 2 – Taxa de Cancelamento
-![Dashboard Cancelamento](images/cancelado.PNG)
+![Dashboard Cancelamento](images/cancelado.PNG)](https://github.com/eijihayash/projeto-Delivery-Center-com-SQL-e-Power-BI/blob/main/imagens/canceled.PNG)
 
 
 - **Em andamento**
