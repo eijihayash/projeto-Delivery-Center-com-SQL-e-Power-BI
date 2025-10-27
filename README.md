@@ -36,5 +36,15 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 
 ---
 ## Objetivo dos Dashboards
+
+## Dashboards Criados
+
+### Página 1 – Visão Geral de Receita
+![Dashboard Receita](images/dashboard1.png)
+
+### Página 2 – Taxa de Cancelamento
+![Dashboard Cancelamento](images/dashboard2.png)
+
+
 - **Em andamento**
 
