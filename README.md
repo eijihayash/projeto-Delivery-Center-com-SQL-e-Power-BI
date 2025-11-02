@@ -47,4 +47,7 @@ O foco é fornecer insights sobre operações de delivery, pagamentos e performa
 ### Página 2 – Taxa de Cancelamento
 ![Dashboard Cancelamento](https://github.com/eijihayash/projeto-Delivery-Center-com-SQL-e-Power-BI/blob/main/imagens/canceled.PNG)
 
+### Página 2 – Visão de Entregas
+![Dashboard Cancelamento](https://github.com/eijihayash/projeto-Delivery-Center-com-SQL-e-Power-BI/blob/main/imagens/Delivered.PNG)
+
 
